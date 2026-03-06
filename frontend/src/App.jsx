@@ -1,0 +1,35 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, AuthContext } from './contexts/AuthContext';
+import LoginScreen from './components/LoginScreen';
+import ChatRoom from './components/ChatRoom';
+import './index.css';
+import './chat.css';
+
+const ProtectedRoute = ({ children }) => {
+  const { participant } = React.useContext(AuthContext);
+  if (!participant) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<LoginScreen />} />
+          <Route path="/room/:roomId" element={
+            <ProtectedRoute>
+              <ChatRoom />
+            </ProtectedRoute>
+          } />
+          <Route path="/" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
+
+export default App;
