@@ -6,6 +6,8 @@ import ChatRoom from './components/ChatRoom';
 import './index.css';
 import './chat.css';
 
+console.log('App.jsx: App component is being initialized.');
+
 const ProtectedRoute = ({ children }) => {
   const { participant } = React.useContext(AuthContext);
   if (!participant) {

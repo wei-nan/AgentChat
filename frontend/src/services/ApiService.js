@@ -1,7 +1,10 @@
 const API_BASE_URL = 'http://localhost:8000';
 
+console.log('ApiService.js: Module loaded.');
+
 export const ApiService = {
     async registerParticipant(name, type) {
+        console.log('ApiService: Attempting to register participant:', { name, type });
         const response = await fetch(`${API_BASE_URL}/participants`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -10,13 +13,17 @@ export const ApiService = {
 
         if (!response.ok) {
             const error = await response.json();
+            console.error('ApiService: Registration failed:', error);
             throw new Error(error.detail || 'Registration failed');
         }
-
-        return response.json();
+        
+        const data = await response.json();
+        console.log('ApiService: Registration successful:', data);
+        return data;
     },
 
     async getRoomMessages(roomId, apiKey, limit = 50, offset = 0) {
+        console.log('ApiService: Attempting to get room messages for room:', roomId);
         const url = new URL(`${API_BASE_URL}/rooms/${roomId}/messages`);
         url.searchParams.append('limit', limit);
         url.searchParams.append('offset', offset);
@@ -31,9 +38,12 @@ export const ApiService = {
 
         if (!response.ok) {
             const error = await response.json();
+            console.error('ApiService: Failed to fetch messages:', error);
             throw new Error(error.detail || 'Failed to fetch messages');
         }
-
-        return response.json();
+        
+        const data = await response.json();
+        console.log('ApiService: Successfully fetched messages.');
+        return data;
     }
 };

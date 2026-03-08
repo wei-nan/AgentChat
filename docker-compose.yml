@@ -1,0 +1,37 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    environment:
+      # Define any environment variables needed by the backend here
+      - PYTHONUNBUFFERED=1 # Ensures Python output is shown immediately
+      - FRONTEND_URL="http://frontend:5173"
+    networks:
+      - agent-network
+    # depends_on: removed frontend dependency
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+    environment:
+      # Define any environment variables needed by the frontend here
+      - NODE_ENV=development
+      - BACKEND_URL=http://backend:8000 # Frontend needs to know where backend is
+    networks:
+      - agent-network
+    depends_on:
+      - backend # Frontend depends on backend
+
+networks:
+  agent-network:
+    driver: bridge

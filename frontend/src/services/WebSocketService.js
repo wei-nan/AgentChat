@@ -1,30 +1,44 @@
 const WS_BASE_URL = 'ws://localhost:8000/ws';
 
+console.log('WebSocketService.js: Module loaded.');
+
 export class WebSocketService {
     constructor() {
         this.ws = null;
         this.listeners = {};
+        console.log('WebSocketService: Instance created.');
     }
 
     connect(roomId, apiKey) {
         this.disconnect();
 
         const url = `${WS_BASE_URL}/${roomId}?api_key=${encodeURIComponent(apiKey)}`;
+        console.log('WebSocketService: Attempting to connect to:', url);
         this.ws = new WebSocket(url);
 
+        this.ws.onopen = () => {
+            console.log('WebSocketService: Connection established.');
+        };
+        
         this.ws.onmessage = (event) => {
+            console.log('WebSocketService: Message received:', event.data);
             const data = JSON.parse(event.data);
             const callbacks = this.listeners[data.event] || [];
             callbacks.forEach(cb => cb(data.payload));
         };
 
-        this.ws.onclose = () => {
-            console.log('WebSocket disconnected');
+        this.ws.onerror = (error) => {
+            console.error('WebSocketService: Error occurred:', error);
+        };
+
+        this.ws.onclose = (event) => {
+            console.log('WebSocketService: Connection closed.', event);
         };
     }
 
     disconnect() {
         if (this.ws) {
+            console.log('WebSocketService: Disconnecting...');
             this.ws.close();
             this.ws = null;
         }
@@ -44,12 +58,15 @@ export class WebSocketService {
 
     sendMessage(content) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            this.ws.send(JSON.stringify({
+            const message = JSON.stringify({
                 event: 'message.create',
                 payload: { content }
-            }));
+            });
+            console.log('WebSocketService: Sending message:', message);
+
+            this.ws.send(message);
         } else {
-            console.error('WebSocket is not connected');
+            console.error('WebSocketService: WebSocket is not connected, cannot send message.');
         }
     }
 }
