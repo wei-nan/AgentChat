@@ -7,10 +7,38 @@ from app.db.database import get_db
 from app.models.message import Message
 from app.models.participant import Participant
 from app.models.room import Room
+from app.schemas.room import RoomCreate, RoomInDB
 from app.schemas.message import MessageResponse
 from app.core.security import get_current_participant
 
 router = APIRouter(prefix="/rooms", tags=["rooms"])
+
+@router.get("", response_model=List[RoomInDB])
+async def get_rooms(
+    db: AsyncSession = Depends(get_db),
+    current_user: Participant = Depends(get_current_participant)
+):
+    result = await db.execute(select(Room).order_by(Room.created_at.desc()))
+    return result.scalars().all()
+
+@router.post("", response_model=RoomInDB, status_code=status.HTTP_201_CREATED)
+async def create_room(
+    room_in: RoomCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: Participant = Depends(get_current_participant)
+):
+    if current_user.type != "agent":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only agents can create rooms"
+        )
+    
+    new_room = Room(name=room_in.name)
+    db.add(new_room)
+    await db.commit()
+    await db.refresh(new_room)
+    return new_room
+
 
 @router.get("/{room_id}/messages", response_model=List[MessageResponse])
 async def get_room_messages(

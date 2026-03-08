@@ -24,7 +24,7 @@ export default function LoginScreen() {
             const resp = await ApiService.registerParticipant(name, type);
             login(resp);
             // Join a default room or specific one
-            navigate('/room/agentchat-poc-room');
+            navigate('/rooms');
 
         } catch (err) {
             setError(err.message);

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, AuthContext } from './contexts/AuthContext';
 import LoginScreen from './components/LoginScreen';
 import ChatRoom from './components/ChatRoom';
+import RoomList from './components/RoomList';
 import './index.css';
 import './chat.css';
 
@@ -22,6 +23,11 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<LoginScreen />} />
+          <Route path="/rooms" element={
+            <ProtectedRoute>
+              <RoomList />
+            </ProtectedRoute>
+          } />
           <Route path="/room/:roomId" element={
             <ProtectedRoute>
               <ChatRoom />
