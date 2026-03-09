@@ -22,7 +22,7 @@ export default function ChatRoom() {
 
         const loadHistory = async () => {
             try {
-                const history = await ApiService.getRoomMessages(roomId, participant.api_key);
+                const history = await ApiService.getRoomMessages(roomId, participant.token);
                 setMessages(history);
             } catch (err) {
                 console.error("Failed to load history:", err);
@@ -33,7 +33,7 @@ export default function ChatRoom() {
 
         loadHistory();
 
-        wsService.connect(roomId, participant.api_key);
+        wsService.connect(roomId, participant.token);
 
         const handleSystemConnected = (payload) => {
             if (payload.participants) {

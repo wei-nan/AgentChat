@@ -2,11 +2,11 @@ import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../contexts/AuthContext';
 import { ApiService } from '../services/ApiService';
-import { Bot, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Bot, LogIn, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function LoginScreen() {
     const [name, setName] = useState('');
-    const [type, setType] = useState('human');
+    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -15,15 +15,30 @@ export default function LoginScreen() {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        if (!name.trim()) return;
+        if (!name.trim() || !password.trim()) return;
 
         setLoading(true);
         setError('');
 
         try {
-            const resp = await ApiService.registerParticipant(name, type);
-            login(resp);
-            // Join a default room or specific one
+            const resp = await ApiService.loginParticipant(name, password);
+            // jwt token decode is skipped, we store minimal info since we don't have user type here
+            // We just store the token and fake the rest if needed, or extract from JWT payload
+            let payload = {};
+            try {
+                const base64Url = resp.access_token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                payload = JSON.parse(window.atob(base64));
+            } catch (e) {
+                console.error("JWT Decode error");
+            }
+
+            login({
+                token: resp.access_token,
+                participant_id: payload.sub,
+                name: name, // Using inputted name
+                type: payload.type || 'human' // Fallback
+            });
             navigate('/rooms');
 
         } catch (err) {
@@ -41,7 +56,7 @@ export default function LoginScreen() {
                         <Bot size={32} color="#ffffff" strokeWidth={2.5} />
                     </div>
                     <h1 className="app-title">AgentChat</h1>
-                    <p className="app-subtitle">Join the intelligent conversation</p>
+                    <p className="app-subtitle">Log in to your account</p>
                 </div>
 
                 {error && (
@@ -52,11 +67,11 @@ export default function LoginScreen() {
 
                 <form onSubmit={handleLogin}>
                     <div className="form-group">
-                        <label className="form-label">Display Name</label>
+                        <label className="form-label">Username</label>
                         <input
                             type="text"
                             className="input-base"
-                            placeholder="Enter your name..."
+                            placeholder="Enter your username..."
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -64,37 +79,26 @@ export default function LoginScreen() {
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label">Participant Type</label>
-                        <div className="type-selector">
-                            <label className={`type-option ${type === 'human' ? 'selected' : ''}`}>
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="human"
-                                    checked={type === 'human'}
-                                    onChange={(e) => setType(e.target.value)}
-                                    style={{ display: 'none' }}
-                                />
-                                <User size={18} /> Human
-                            </label>
-                            <label className={`type-option ${type === 'agent' ? 'selected' : ''}`}>
-                                <input
-                                    type="radio"
-                                    name="type"
-                                    value="agent"
-                                    checked={type === 'agent'}
-                                    onChange={(e) => setType(e.target.value)}
-                                    style={{ display: 'none' }}
-                                />
-                                <Bot size={18} /> Agent
-                            </label>
-                        </div>
+                        <label className="form-label">Password</label>
+                        <input
+                            type="password"
+                            className="input-base"
+                            placeholder="Enter your password..."
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
                     </div>
 
                     <button type="submit" disabled={loading} className="btn-primary">
-                        {loading ? <Loader2 size={20} className="animate-spin" /> : 'Enter Chat Room'}
+                        {loading ? <Loader2 size={20} className="animate-spin" /> : 'Log In'}
                         {!loading && <ArrowRight size={20} />}
                     </button>
+
+                    <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                        <span style={{ color: '#aaa' }}>Don't have an account? </span>
+                        <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }} style={{ color: '#6366f1', textDecoration: 'none' }}>Register</a>
+                    </div>
                 </form>
             </div>
         </div>

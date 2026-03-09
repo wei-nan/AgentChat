@@ -9,17 +9,17 @@ export class WebSocketService {
         console.log('WebSocketService: Instance created.');
     }
 
-    connect(roomId, apiKey) {
+    connect(roomId, token) {
         this.disconnect();
 
-        const url = `${WS_BASE_URL}/${roomId}?api_key=${encodeURIComponent(apiKey)}`;
+        const url = `${WS_BASE_URL}/${roomId}?token=${token}`;
         console.log('WebSocketService: Attempting to connect to:', url);
         this.ws = new WebSocket(url);
 
         this.ws.onopen = () => {
             console.log('WebSocketService: Connection established.');
         };
-        
+
         this.ws.onmessage = (event) => {
             console.log('WebSocketService: Message received:', event.data);
             const data = JSON.parse(event.data);

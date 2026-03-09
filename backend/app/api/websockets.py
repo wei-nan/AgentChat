@@ -8,16 +8,25 @@ from app.db.database import get_db
 from app.models.room import Room
 from app.models.message import Message
 from app.models.participant import Participant
-from app.core.security import hash_api_key
+from app.core.security import ALGORITHM, SECRET_KEY
 from app.services.websocket_manager import manager
+import jwt
+from fastapi import WebSocketException, status
 
 router = APIRouter(tags=["websockets"])
 
-async def get_participant_by_api_key(api_key: str, db: AsyncSession) -> Participant:
-    if not api_key:
+async def get_participant_by_token(token: str, db: AsyncSession) -> Participant:
+    if not token:
         return None
-    hashed = hash_api_key(api_key)
-    result = await db.execute(select(Participant).where(Participant.api_key == hashed))
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        participant_id: str = payload.get("sub")
+        if not participant_id:
+            return None
+    except jwt.PyJWTError:
+        return None
+        
+    result = await db.execute(select(Participant).where(Participant.id == participant_id))
     return result.scalars().first()
 
 async def get_or_create_room(room_id: UUID, db: AsyncSession) -> Room:
@@ -33,10 +42,10 @@ async def get_or_create_room(room_id: UUID, db: AsyncSession) -> Room:
 async def websocket_endpoint(
     websocket: WebSocket,
     room_id: UUID,
-    api_key: str = Query(None),
+    token: str = Query(None),
     db: AsyncSession = Depends(get_db)
 ):
-    participant = await get_participant_by_api_key(api_key, db)
+    participant = await get_participant_by_token(token, db)
     if not participant:
         await websocket.close(code=1008, reason="Unauthorized")
         return

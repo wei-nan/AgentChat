@@ -5,18 +5,19 @@ from typing import Literal
 
 class ParticipantCreate(BaseModel):
     name: str
-    type: Literal['human', 'agent']
+    password: str
+    type: Literal['user', 'agent', 'admin']
 
 class ParticipantResponse(BaseModel):
-    participant_id: UUID
+    id: UUID
     name: str
-    api_key: str
+    type: str
 
 class ParticipantInDB(BaseModel):
     id: UUID
     name: str
     type: str
-    api_key: str
+    password_hash: str
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)

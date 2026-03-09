@@ -3,12 +3,12 @@ const API_BASE_URL = 'http://localhost:8000';
 console.log('ApiService.js: Module loaded.');
 
 export const ApiService = {
-    async registerParticipant(name, type) {
+    async registerParticipant(name, password, type) {
         console.log('ApiService: Attempting to register participant:', { name, type });
-        const response = await fetch(`${API_BASE_URL}/participants`, {
+        const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, type }),
+            body: JSON.stringify({ name, password, type }),
         });
 
         if (!response.ok) {
@@ -22,7 +22,30 @@ export const ApiService = {
         return data;
     },
 
-    async getRoomMessages(roomId, apiKey, limit = 50, offset = 0) {
+    async loginParticipant(username, password) {
+        console.log('ApiService: Attempting to login participant:', username);
+        const params = new URLSearchParams();
+        params.append('username', username);
+        params.append('password', password);
+
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: params,
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            console.error('ApiService: Login failed:', error);
+            throw new Error(error.detail || 'Login failed');
+        }
+
+        const data = await response.json();
+        console.log('ApiService: Login successful.');
+        return data;
+    },
+
+    async getRoomMessages(roomId, token, limit = 50, offset = 0) {
         console.log('ApiService: Attempting to get room messages for room:', roomId);
         const url = new URL(`${API_BASE_URL}/rooms/${roomId}/messages`);
         url.searchParams.append('limit', limit);
@@ -32,7 +55,7 @@ export const ApiService = {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': apiKey,
+                'Authorization': `Bearer ${token}`,
             },
         });
 
@@ -47,13 +70,13 @@ export const ApiService = {
         return data;
     },
 
-    async getRooms(apiKey) {
+    async getRooms(token) {
         console.log('ApiService: Attempting to get rooms');
         const response = await fetch(`${API_BASE_URL}/rooms`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': apiKey,
+                'Authorization': `Bearer ${token}`,
             },
         });
 
@@ -66,13 +89,13 @@ export const ApiService = {
         return await response.json();
     },
 
-    async createRoom(name, apiKey) {
+    async createRoom(name, token) {
         console.log('ApiService: Attempting to create room:', name);
         const response = await fetch(`${API_BASE_URL}/rooms`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-Key': apiKey,
+                'Authorization': `Bearer ${token}`,
             },
             body: JSON.stringify({ name }),
         });

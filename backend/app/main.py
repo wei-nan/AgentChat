@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import participants, rooms, websockets
+from app.api import auth, rooms, websockets
 
 app = FastAPI(title="AgentChat PoC")
 
@@ -12,7 +12,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(participants.router)
+app.include_router(auth.router)
 app.include_router(rooms.router)
 app.include_router(websockets.router)
 

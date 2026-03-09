@@ -20,7 +20,7 @@ export default function RoomList() {
 
     const fetchRooms = async () => {
         try {
-            const data = await ApiService.getRooms(participant.api_key);
+            const data = await ApiService.getRooms(participant.token);
             setRooms(data);
         } catch (err) {
             setError(err.message);
@@ -37,7 +37,7 @@ export default function RoomList() {
         setError('');
 
         try {
-            const newRoom = await ApiService.createRoom(newRoomName, participant.api_key);
+            const newRoom = await ApiService.createRoom(newRoomName, participant.token);
             // prepend to list to easily see the new room (as API returns descending order)
             setRooms([newRoom, ...rooms]);
             setNewRoomName('');
