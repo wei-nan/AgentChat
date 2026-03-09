@@ -18,6 +18,6 @@
 - **注意：** 這個方法比較簡單，但不適用於未來複雜的 schema 變更（例如增加/刪除欄位），因此 Alembic 方案是更長遠、更健壯的選擇。
 
 ## 驗收條件 (Acceptance Criteria)
-- [ ] 在一個完全乾淨的環境中 (即刪除 `chat.db` 檔案後)，啟動後端服務 container 不會發生錯誤。
-- [ ] 啟動後，`chat.db` 檔案被自動建立，並且包含了 `participants`, `rooms`, `messages` 等所有必要的資料表。
-- [ ] 執行註冊 (`POST /participants`)、建立房間 (`POST /rooms`) 等操作時，不再出現 `no such table` 錯誤。
+- [x] 在一個完全乾淨的環境中 (即刪除 `chat.db` 檔案後)，啟動後端服務 container 不會發生錯誤。
+- [x] 啟動後，`chat.db` 檔案被自動建立，並且包含了 `participants`, `rooms`, `messages` 等所有必要的資料表。
+- [x] 執行註冊 (`POST /participants`)、建立房間 (`POST /rooms`) 等操作時，不再出現 `no such table` 錯誤。
