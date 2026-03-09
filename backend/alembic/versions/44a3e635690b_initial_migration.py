@@ -24,11 +24,10 @@ def upgrade() -> None:
     op.create_table('participants',
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('name', sa.String(length=255), nullable=False),
+    sa.Column('password_hash', sa.String(length=255), nullable=False),
     sa.Column('type', sa.String(length=50), nullable=False),
-    sa.Column('api_key', sa.String(length=255), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('(CURRENT_TIMESTAMP)'), nullable=False),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('api_key'),
     sa.UniqueConstraint('name')
     )
     op.create_table('rooms',
