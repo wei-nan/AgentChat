@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+      - ./data:/app/data  # Added this line to persist SQLite data
     environment:
       # Define any environment variables needed by the backend here
       - PYTHONUNBUFFERED=1 # Ensures Python output is shown immediately
