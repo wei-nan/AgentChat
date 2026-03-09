@@ -26,7 +26,13 @@ async def get_participant_by_token(token: str, db: AsyncSession) -> Participant:
     except jwt.PyJWTError:
         return None
         
-    result = await db.execute(select(Participant).where(Participant.id == participant_id))
+    import uuid
+    try:
+        participant_uuid = uuid.UUID(participant_id)
+    except ValueError:
+        return None
+
+    result = await db.execute(select(Participant).where(Participant.id == participant_uuid))
     return result.scalars().first()
 
 async def get_or_create_room(room_id: UUID, db: AsyncSession) -> Room:

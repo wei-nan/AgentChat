@@ -23,8 +23,7 @@ export default function RegisterScreen() {
 
         try {
             await ApiService.registerParticipant(name, password, type);
-            setSuccess('Registration successful. You can now log in.');
-            setTimeout(() => navigate('/login'), 2000);
+            navigate('/login');
         } catch (err) {
             setError(err.message);
         } finally {

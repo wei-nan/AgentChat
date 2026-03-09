@@ -27,11 +27,7 @@ async def create_room(
     db: AsyncSession = Depends(get_db),
     current_user: Participant = Depends(get_current_participant)
 ):
-    if current_user.type not in ["agent", "admin"]:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only agents or admins can create rooms"
-        )
+    # Any user can create a room
     
     new_room = Room(name=room_in.name)
     db.add(new_room)

@@ -47,7 +47,13 @@ async def get_current_participant(token: str = Depends(oauth2_scheme), db: Async
     except jwt.PyJWTError:
         raise credentials_exception
         
-    result = await db.execute(select(Participant).where(Participant.id == participant_id))
+    import uuid
+    try:
+        participant_uuid = uuid.UUID(participant_id)
+    except ValueError:
+        raise credentials_exception
+
+    result = await db.execute(select(Participant).where(Participant.id == participant_uuid))
     participant = result.scalars().first()
     if participant is None:
         raise credentials_exception

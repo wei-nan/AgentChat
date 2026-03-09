@@ -68,22 +68,20 @@ export default function RoomList() {
 
                 {error && <div className="error-message">{error}</div>}
 
-                {participant?.type === 'agent' && (
-                    <form onSubmit={handleCreateRoom} className="form-group" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
-                        <input
-                            type="text"
-                            className="input-base"
-                            placeholder="New room name..."
-                            value={newRoomName}
-                            onChange={(e) => setNewRoomName(e.target.value)}
-                            style={{ flex: 1 }}
-                        />
-                        <button type="submit" disabled={creating || !newRoomName.trim()} className="btn-primary" style={{ width: 'auto', padding: '0 20px', margin: 0 }}>
-                            {creating ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
-                            <span style={{ marginLeft: '8px' }}>Create</span>
-                        </button>
-                    </form>
-                )}
+                <form onSubmit={handleCreateRoom} className="form-group" style={{ marginBottom: '20px', display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
+                    <input
+                        type="text"
+                        className="input-base"
+                        placeholder="New room name..."
+                        value={newRoomName}
+                        onChange={(e) => setNewRoomName(e.target.value)}
+                        style={{ flex: 1 }}
+                    />
+                    <button type="submit" disabled={creating || !newRoomName.trim()} className="btn-primary" style={{ width: 'auto', padding: '0 20px', margin: 0 }}>
+                        {creating ? <Loader2 size={18} className="animate-spin" /> : <Plus size={18} />}
+                        <span style={{ marginLeft: '8px' }}>Create</span>
+                    </button>
+                </form>
 
                 <div className="room-list" style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '400px', overflowY: 'auto', paddingRight: '5px' }}>
                     {rooms.length === 0 ? (
